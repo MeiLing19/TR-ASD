@@ -1,0 +1,231 @@
+#include <stdio.h>
+#include <stdio.h>
+#include <conio.h>
+#define cls() system ("cls")
+#define ENTER 13
+#define TAB 9
+#define BKSP 8
+#include <windows.h>
+#include <string.h>
+
+void login(), gotoab(), menu(), create(), read(), update(), deleted(), edit(), searching(),
+history(), sorting(), menu8a(), prSearch(), copy_all, kembali(),
+sort_id, sort_merk, sort_jenis_mobil, sort_tahun_keluaran, sort_warna,
+sort_harga;
+
+int n = 0, search();
+COORD coord = {0,0};
+
+struct daftar{
+    char id[10];
+    char merk[50];
+    char jenis_mobil[50];
+    char tahun_keluaran[10];
+    char warna[10];
+    char harga[50];
+};
+
+struct daftar *head = NULL, *node = NULL, *curr = NULL;
+
+struct hist *headhist = NULL, *nodehist, *currhist, *datahist;
+
+typedef struct{
+    char id[10];
+    char merk[50];
+    char jenis_mobil[50];
+    char tahun_keluaran[10];
+    char warna[10];
+    char harga[50];
+} s_dealer;
+
+/*s_dealer s_data[100];
+void sort_id(s_dealer list[], int s);
+void sort_merk(s_dealer list[], int s);
+void sort_jenis_mobil(s_dealer list[], int s);
+void sort_tahun_keluaran(s_dealer list[], int s);
+void sort_warna(s_dealer list[], int s);
+void sort_harga(s_dealer list[], int s);*/
+
+int main(){
+    login();
+    return 0;
+}
+
+getch();
+
+void gotoab(int a, int b){
+    coord.X=a;
+    coord.Y=b;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void login(){
+    char user[6];
+    char pass[100];
+    int p=0;
+    time_t t;
+    time(&t);
+    system("COLOR B");
+    gotoab(34,9); printf("===========================================================");
+    gotoab(34,11); printf("===========================================================");
+    gotoab(34,10); printf("><><><><><><><><><><><><><><><><><><><><><><><><><><><><<><");
+    gotoab(34,18); printf("===========================================================");
+    gotoab(34,20); printf("===========================================================");
+    gotoab(34,12); printf("                                                           ");
+    gotoab(34,13); printf("                                                           ");
+    gotoab(34,14); printf("                                                           ");
+    gotoab(34,15); printf("                                                           ");
+    gotoab(34,16); printf("                                                           ");
+    gotoab(34,17); printf("                                                           ");
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+    gotoab(58,7); printf("MENU LOGIN");
+    gotoab(30,20); printf("KELOMPOK SUMBER JAYA HARAPAN(Dealer Mobil");
+    gotoab(41,14); printf("ID (admin)       : ");
+    gotoab(41,15); printf("Password (admin) : ");
+
+    gotoab(34,9); printf("\t\t\t\t      %s", ctime(&t));
+    gotoab(60,14); scanf("%s", &user);
+
+    gotoab (60,15);
+    char ch;
+    int i = 0;
+    while(1){
+        ch = getch();
+
+        if(ch == ENTER || ch == TAB){
+            pass[i] = '\0';
+            break;
+        }else if(ch == BKSP){
+            if(i > 0){
+                i--;
+                printf("\b \b");
+            }
+        }else{
+            pass[i++] = ch;
+            printf("*");
+
+        }
+    }
+
+    if(strcmp(user, "admin") == 0 && strcmp(pass, "admin") == 0){
+        cls();
+        gotoab(5,22);
+        system("COLOR 9");
+        system("cls");
+        system("COLOR B");
+        menu();
+    }else{
+        cls();
+        login();
+    }
+}
+
+void kembali(){
+    char enter;
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+    printf("     <<Tekan ENTER untuk kembali ke menu awal>> ");
+    while((enter = getchar()) != '\n');
+    enter = getchar();
+    system("cls");
+    menu();
+}
+
+int z=0;
+
+void create()
+{
+    int a, max;
+
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+    gotoab(0,0); printf("===================================================");
+    gotoab(0,2); printf("===================================================");
+    gotoab(0,10); printf("===================================================");
+
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+    gotoab(45,1); printf("Masukkan Data Baru ");
+    gotoab(42,4); printf("Batas maksimum input data : 10");
+    gotoab(42,6); printf("Berapa banyak yang mau diinputkan ?\n");
+    gotoab(60,8); scanf("%d", &max);
+
+    if(max > 10){
+        printf("Batas maksimum 10 data!");
+        exit(0);
+    }
+
+    headhist = NULL;
+    for(a=0; a<max; a++){
+        //Alokasi memori untuk data Baru
+        node = (struct daftar*) malloc(sizeof(struct daftar));
+
+        z = 0;
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+    gotoab(0,0); printf("===================================================");
+    gotoab(0,2); printf("===================================================");
+
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+    gotoab(40,1); printf("          Input Data Mobil          ");
+    gotoab(52,3+(6*a));printf("Mobil ke - %d", a+1);
+    gotoab(52,4+(6*a));printf("Id Mobil         : "); scanf(" %[^\n]s", &node->id); //ubah int ke char array
+    gotoab(52,5+(6*a));printf("Merk         : "); scanf(" %[^\n]s", &node->merk);
+    gotoab(52,6+(6*a));printf("Jenis Mobil      : "); scanf(" %[^\n]s", &node->jenis_mobil);
+    gotoab(52,7+(6*a));printf("Tahun Keluaran   : "); scanf(" %[^\n]s", &node->tahun_keluaran);
+    gotoab(52,8+(6*a));printf("Warna            : "); scanf(" %[^\n]s", &node->warna);
+    gotoab(52,9+(6*a));printf("Harga            : "); scanf(" %[^\n]s", &node->harga);
+
+    //Kondisi tidak ada Data
+    if(head == NULL){
+        head = node;
+        curr = node;
+    }
+    //Kondisi sudah ada Data
+    else{
+        curr -> next = node;
+        curr = node;
+        }
+    }
+    curr -> next = NULL;
+    z += max + 1; //sebagai penanda
+    n += max;
+
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+    gotoab(0,(6*a)+3); printf("===================================================");
+
+    datahist = (struct hist*) malloc(sizeof(struct hist));
+    char job[100];
+    sprintf(job, "Admin memasukkan %d data baru", max);
+    strcpy(datahist -> aktivitas, job);
+
+    if(headhist == NULL){
+        headhist == datahist;
+        currhist == datahist;
+    }else{
+        currhist -> next = datahist;
+        currhist = datahist;
+    }
+    currhist -> next = NULL;
+}
+
+void read()
+    {
+        struct daftar *ct;
+        ct = (struct daftar*) malloc(sizeof(struct daftar));;
+        ct = head;
+
+        int i = 5, j;
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
+    gotoab(0,0); printf("===================================================");
+    gotoab(0,2); printf("===================================================");
+    gotoab(0,4); printf("===================================================");
+
+    }
+
+
+
+
+
+
+
+
+
+
