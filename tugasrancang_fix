@@ -1,0 +1,1144 @@
+
+// USERNAME : lany
+// PASSWORD : admin
+
+#include <conio.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <windows.h>
+
+#define PROGRESS_BAR_SIZE 50
+
+struct Mobil
+{
+  char id[10];
+  char merk[100];
+  char model[100];
+  char jenis[100];
+  char warna[100];
+  long harga;
+  int tahun;
+  struct Mobil *next;
+};
+
+struct Riwayat
+{
+  char keterangan[100];
+  struct Riwayat *next;
+};
+
+struct Mobil *head;
+struct Riwayat *headRwy;
+
+void print_n_chars(int n, int c)
+{
+  while (n-- > 0)
+    putchar(c);
+}
+
+void display_progress_bar(int p)
+{
+  putchar('\r');
+  gotoxy(30, 14);
+  putchar('[');
+  print_n_chars(PROGRESS_BAR_SIZE * p / 100, '|');
+  print_n_chars(PROGRESS_BAR_SIZE - PROGRESS_BAR_SIZE * p / 100, ' ');
+  putchar(']');
+  printf(" %d%%", p);
+}
+
+void loading(char text[10])
+{
+  system("cls");
+  int p;
+  gotoxy(55, 12);
+  printf("%s\n", text);
+  for (p = 0; p <= 100; ++p)
+  {
+    display_progress_bar(p);
+    Sleep(20);
+  }
+}
+
+int login(char username[50], char password[50]);
+void menu(), buatMobil(), tampilMobil(), updateMobil(), tampilUpdate(),
+    hapusMobil(), cariMobil(), tampilSearch(struct Mobil *mobil),
+    riwayatMobil(), recordRiwayat(char ket_in[100]), urutkanMobil(),
+    mobilTermahal(), mobilTermurah(), mobilTerbaru(), mobilTerlama(),
+    resetMobil(), Keluar();
+COORD coord = {0, 0};
+
+void swap(struct Mobil *current, struct Mobil *index);
+int random_int();
+void Enter();
+void auto_insert(char merk[100], char model[100], char jenis[100],
+                 char warna[100], int tahun, long harga);
+
+int main()
+{
+  head = NULL;
+  headRwy = NULL;
+  char username[50];
+  char password[50];
+
+  auto_insert("Avanza", "Toyota", "Sport", "Kuning", 2018, 220009000);
+  auto_insert("Xenia", "Daihatsu", "MPV", "Merah", 2019, 366010000);
+  auto_insert("Vanzia", "Toyota", "Sportif", "Hijau", 2018, 456003000);
+  auto_insert("Cenia", "Dihatsu", "MPP", "Merah", 2019, 145060000);
+
+  do
+  {
+    username == NULL;
+    password == NULL;
+    int x = 65;
+    time_t t;
+    time(&t);
+    char ch = NULL;
+    int i = 0;
+    system("cls");
+    system("COLOR B");
+    gotoxy(42, 6);
+    printf("+=================================+");
+    gotoxy(42, 7);
+    printf("|                                 |");
+    gotoxy(42, 8);
+    printf("|   KELOMPOK SUMBER JAYA HARAPAN  |");
+    gotoxy(42, 9);
+    printf("|          (DEALER MOBIL)         |");
+    gotoxy(42, 10);
+    printf("|                                 |");
+    gotoxy(42, 11);
+    printf("+=================================+");
+    gotoxy(47, 18);
+    printf("%s", ctime(&t));
+    gotoxy(42, 17);
+    printf("-----------------------------------");
+    gotoxy(42, 19);
+    printf("-----------------------------------");
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+    gotoxy(54, 5);
+    printf("MENU LOGIN");
+    gotoxy(45, 14);
+    printf("Username\t:\t ");
+    scanf("%s", &username);
+    gotoxy(45, 15);
+    printf("Password\t:\t ");
+    fflush(stdin);
+    while ((ch = (char)_getch()) != '\r')
+    {
+
+      if (ch == 8)
+      {
+        if (x >= 65)
+        {
+          password[i] = '\0';
+          gotoxy(x, 15);
+          printf(" ");
+          x--;
+          i--;
+          gotoxy(x, 15);
+        }
+      }
+      else
+      {
+        password[i] = ch;
+        gotoxy(x, 15);
+        printf("*");
+        x++;
+        i++;
+      }
+    }
+
+  } while (login(username, password) != 0);
+}
+
+void gotoxy(int x, int y)
+{
+  COORD coord;
+  coord.X = x;
+  coord.Y = y;
+  SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+int login(char username[50], char password[50])
+{
+  int resUname = strcmp(username, "lany");
+  int resPass = strcmp(password, "admin");
+  if (resUname == 0 && resPass == 0)
+  {
+    gotoxy(51, 22);
+    printf("LOGIN BERHASIL!!");
+    gotoxy(48, 23);
+    printf("Selamat Datang Lany:)");
+    getch();
+    loading("LOADING...");
+    menu();
+    return 0;
+  }
+  else
+  {
+    gotoxy(41, 22);
+    printf("WARNING: Username atau password salah!!");
+    gotoxy(41, 23);
+    printf("TEKAN ENTER UNTUK MASUK KE LOGIN ULANG!");
+    getch();
+    return 1;
+  }
+}
+
+void menu()
+{
+  int pilih = 0;
+  char ket_in[100];
+
+  do
+  {
+    system("color B0");
+    system("cls");
+    gotoxy(39, 4);
+    printf("SELAMAT DATANG DI DATABASE DEALER MOBIL");
+    gotoxy(31, 6);
+    printf("=====================================================");
+    gotoxy(31, 7);
+    printf("||       MENU DEALER MOBIL SUMBER JAYA HARAPAN     ||");
+    gotoxy(31, 8);
+    printf("=====================================================");
+    gotoxy(31, 9);
+    printf("||   1. Membuat Data Ke Database Mobil             ||");
+    gotoxy(31, 10);
+    printf("||   2. Menampilkan Isi Database Mobil             ||");
+    gotoxy(31, 11);
+    printf("||   3. Mengupdate Data di Database Mobil          ||");
+    gotoxy(31, 12);
+    printf("||   4. Menghapus Data di Database Mobil           ||");
+    gotoxy(31, 13);
+    printf("||   5. Mencari Data di Database Mobil             ||");
+    gotoxy(31, 14);
+    printf("||   6. Melihat Riwayat Aktivitas Database Mobil   ||");
+    gotoxy(31, 15);
+    printf("||   7. Mengurutkan Data di Database Mobil         ||");
+    gotoxy(31, 16);
+    printf("||   8. Reset Data                                 ||");
+    gotoxy(31, 17);
+    printf("||   9. Keluar Dari Program                        ||");
+    gotoxy(31, 18);
+    printf("||=================================================||");
+    gotoxy(31, 21);
+    printf("   Silahkan Masukkan Pilihan Menu : ");
+    scanf("%d", &pilih);
+    switch (pilih)
+    {
+    case 1:
+      system("cls");
+      system("color C0");
+      buatMobil();
+
+      sprintf(ket_in, "Admin membuat data mobil ke database ");
+      recordRiwayat(ket_in);
+      break;
+    case 2:
+      system("cls");
+      system("color E0");
+
+      tampilMobil();
+
+      sprintf(ket_in, "Admin menampilkan isi database mobil");
+      recordRiwayat(ket_in);
+      break;
+    case 3:
+      system("cls");
+      system("color C0");
+
+      updateMobil();
+
+      sprintf(ket_in, "Admin mengupdate isi database ke mobil");
+      recordRiwayat(ket_in);
+      break;
+    case 4:
+      system("cls");
+      system("color C0");
+
+      hapusMobil();
+
+      sprintf(ket_in, "Admin menghapus isi database mobil");
+      recordRiwayat(ket_in);
+      break;
+    case 5:
+      system("cls");
+      system("color E0");
+
+      cariMobil();
+
+      sprintf(ket_in, "Admin mencari isi database mobil");
+      recordRiwayat(ket_in);
+      break;
+    case 6:
+      system("cls");
+      system("color C0");
+
+      sprintf(ket_in, "Admin menampilkan riwayat isi database mobil");
+      recordRiwayat(ket_in);
+
+      riwayatMobil();
+      break;
+    case 7:
+      system("cls");
+      system("color E0");
+
+      urutkanMobil();
+
+      sprintf(ket_in, "Admin mengurutkan isi database mobil");
+      recordRiwayat(ket_in);
+      break;
+    case 8:
+      system("cls");
+      system("color C0");
+
+      resetMobil();
+
+      sprintf(ket_in, "Admin mereset isi database mobil");
+      recordRiwayat(ket_in);
+      break;
+    case 9:
+      Keluar();
+      break;
+    default:
+      printf("\n\t\t  Terjadi Kesalahan Input, Menu Yang Di Input Tidak Tersedia\n");
+      printf("\t\t  Tekan apa saja untuk kembali ke menu utama\n");
+      break;
+    }
+    getch();
+  } while (pilih != 9);
+}
+
+void buatMobil()
+{
+  char id[10];
+  char merk[100];
+  char model[100];
+  char jenis[100];
+  char warna[100];
+  int tahun;
+  long harga;
+
+  int random = random_int();
+  char firstMerk[3];
+
+  struct Mobil *mobil = (struct Mobil *)malloc(sizeof(struct Mobil));
+
+  gotoxy(30, 5);
+  printf("=======================================================");
+  gotoxy(45, 6);
+  printf("--- INPUT DATA MOBIL ----");
+  gotoxy(30, 7);
+  printf("=======================================================");
+
+  gotoxy(45, 8);
+  printf("Merk\t: ");
+  gotoxy(60, 8);
+  scanf("%s", merk);
+  strcpy(mobil->merk, merk);
+
+  gotoxy(45, 9);
+  printf("Model\t: ");
+  gotoxy(60, 9);
+  scanf("%s", model);
+  strcpy(mobil->model, model);
+
+  gotoxy(45, 10);
+  printf("Jenis\t: ");
+  gotoxy(60, 10);
+  scanf("%s", jenis);
+  strcpy(mobil->jenis, jenis);
+
+  gotoxy(45, 11);
+  printf("Warna\t: ");
+  gotoxy(60, 11);
+  scanf("%s", warna);
+  strcpy(mobil->warna, warna);
+
+  gotoxy(45, 12);
+  printf("Tahun\t: ");
+  gotoxy(60, 12);
+  scanf("%d", &tahun);
+  mobil->tahun = tahun;
+
+  gotoxy(45, 13);
+  printf("Harga\t: Rp. ");
+  gotoxy(62, 13);
+  scanf("%ld", &harga);
+  mobil->harga = harga;
+
+  memcpy(firstMerk, merk, 2);
+  sprintf(id, "%s%d", firstMerk, random);
+  strcpy(mobil->id, id);
+
+  gotoxy(45, 14);
+  printf("ID\t\t: %s", id);
+
+  gotoxy(45, 18);
+  printf("TEKAN ENTER UNTUK KEMBALI KE MENU AWAL");
+  mobil->next = NULL;
+
+  if (head == NULL)
+  {
+    head = mobil;
+  }
+  else
+  {
+    mobil->next = head;
+    head = mobil;
+  }
+}
+
+void tampilMobil()
+{
+  struct Mobil *mobil = head;
+  int nomer = 1;
+  printf("\n\n\n\n\t\t\t\t\t  MENU TAMPILAN DATABASE MOBIL\n");
+  printf("\n\t\t  "
+         "-------------------------------------------------------------------"
+         "-------"
+         "-----------\n");
+  printf("\t\t  | %-3s | %10s | %10s | %10s | %10s | %10s | %10s |", "No",
+         "Merk", "Model", "Jenis", "Warna", "Tahun", "Harga");
+  printf("\n\t\t  "
+         "|------------------------------------------------------------------"
+         "-------"
+         "----------|");
+
+  if (mobil == NULL)
+  {
+    printf("\n\t\t\tData kosong!\n");
+  }
+  while (mobil != NULL)
+  {
+    printf("\n\t\t  | %-3d | %10s | %10s | %10s | %10s | %10d | %10ld |", nomer,
+           mobil->merk, mobil->model, mobil->jenis, mobil->warna, mobil->tahun,
+           mobil->harga);
+
+    mobil = mobil->next;
+    nomer++;
+  }
+  printf("\n\t\t  "
+         "-------------------------------------------------------------------"
+         "-------"
+         "-----------");
+
+  printf("\n\n\n\n\n\t\t\t\t      TEKAN ENTER UNTUK KEMBALI KE MENU AWAL");
+}
+
+void updateMobil()
+{
+  char id_input[10];
+  int edit;
+  int isSame;
+  gotoxy(15, 3);
+  printf("====================================================================="
+         "============");
+  gotoxy(15, 4);
+  printf("|                               UPDATE DATA MOBIL                    "
+         "           |");
+  gotoxy(15, 5);
+  printf("====================================================================="
+         "============");
+  gotoxy(40, 6);
+  tampilUpdate();
+
+  gotoxy(24, 17);
+  printf("Masukkan ID : ");
+  gotoxy(40, 17);
+  scanf("%s", id_input);
+  struct Mobil *mobil = head;
+  while (mobil != NULL)
+  {
+    isSame = strcmp(mobil->id, id_input);
+    if (isSame == 0)
+    {
+      printf("\n\t\t\tMobil dengan ID %s ditemukan !!!\n\n", id_input);
+      printf("\t\t\tKategori yg ingin diupdate : ");
+      printf("\n\t\t\t1. Merk");
+      printf("\n\t\t\t2. Model");
+      printf("\n\t\t\t3. Jenis");
+      printf("\n\t\t\t4. Warna");
+      printf("\n\t\t\t5. Tahun");
+      printf("\n\t\t\t6. Harga");
+      printf("\n\n\n\t\t\tMasukkan pilihan : ");
+      scanf("%d", &edit);
+      switch (edit)
+      {
+      case 1:
+        printf("\n\t\t\tMasukkan merk yang baru : ");
+        scanf("%s", mobil->merk);
+        printf("\n\t\t\tMerk berhasil diupdate!!");
+        printf("\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+        break;
+      case 2:
+        printf("\n\t\t\tMasukkan model yang baru : ");
+        scanf("%s", mobil->model);
+        printf("\n\t\t\tModel berhasil diupdate!!");
+        printf("\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+        break;
+      case 3:
+        printf("\n\t\t\tMasukkan jenis yang baru : ");
+        scanf("%s", mobil->jenis);
+        printf("\n\t\t\tJenis berhasil diupdate!!");
+        printf("\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+        break;
+      case 4:
+        printf("\n\t\t\tMasukkan warna yang baru : ");
+        scanf("%s", mobil->warna);
+        printf("\n\t\t\tWarna berhasil diupdate!!");
+        printf("\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+        break;
+      case 5:
+        printf("\n\t\t\tMasukkan tahun yang baru : ");
+        scanf("%d", mobil->tahun);
+        printf("\n\t\t\tTahun berhasil diupdate!!");
+        printf("\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+        break;
+      case 6:
+        printf("\n\t\t\tMasukkan harga yang baru : ");
+        scanf("%s", mobil->harga);
+        printf("\n\t\t\tHarga berhasil diupdate!!");
+        printf("\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+        break;
+      }
+      return;
+    }
+    mobil = mobil->next;
+  }
+  printf("\n\t\tMobil dengan ID %s tidak ditemukan !!!\n", id_input);
+}
+
+void tampilUpdate()
+{
+  struct Mobil *mobil = head;
+
+  printf("\n\t    "
+         "-------------------------------------------------------------------"
+         "--------"
+         "-------"
+         "----------\n");
+  printf("\t    | %10s | %10s | %10s | %10s | %10s | %10s | %10s |", "ID",
+         "Merk", "Model", "Jenis", "Warna", "Tahun", "Harga");
+  printf("\n\t    "
+         "|------------------------------------------------------------------"
+         "--------"
+         "-------"
+         "---------|");
+  if (mobil == NULL)
+  {
+    printf("\n\t\t\t Data kosong!");
+  }
+  while (mobil != NULL)
+  {
+    printf("\n\t    | %10s | %10s | %10s | %10s | %10s | %10d | %10ld |",
+           mobil->id, mobil->merk, mobil->model, mobil->jenis, mobil->warna,
+           mobil->tahun, mobil->harga);
+
+    mobil = mobil->next;
+  }
+  printf("\n\t    "
+         "-------------------------------------------------------------------"
+         "--------"
+         "-------"
+         "----------\n");
+}
+
+void hapusMobil()
+{
+  int id_input[10];
+  int isSame;
+  int isDelete;
+
+  gotoxy(15, 3);
+  printf("====================================================================="
+         "============");
+  gotoxy(15, 4);
+  printf("|                                HAPUS DATA MOBIL                    "
+         "           |");
+  gotoxy(15, 5);
+  printf("====================================================================="
+         "============");
+  gotoxy(40, 6);
+  tampilUpdate();
+
+  gotoxy(13, 17);
+  printf("Masukkan ID : ");
+  gotoxy(30, 17);
+  scanf("%s", id_input);
+
+  struct Mobil *mobil1 = head;
+  struct Mobil *mobil2 = head;
+
+  while (mobil1 != NULL)
+  {
+    isSame = strcmp(mobil1->id, id_input);
+    if (isSame == 0)
+    {
+      gotoxy(13, 19);
+      printf("Mobil dengan ID %s ditemukan !!!", id_input);
+      if (mobil1 == head)
+      {
+        head = head->next;
+        free(mobil1);
+        mobil1 = head;
+        gotoxy(13, 20);
+        printf("Mobil berhasil dihapus !!!");
+        isDelete = 0;
+        break;
+      }
+      else
+      {
+        mobil2->next = mobil1->next;
+        free(mobil1);
+        mobil1 = mobil2->next;
+        gotoxy(13, 20);
+        printf("Mobil berhasil dihapus !!!");
+        isDelete = 0;
+        break;
+      }
+    }
+    else
+    {
+      mobil2 = mobil1;
+      mobil1 = mobil1->next;
+    }
+  }
+  if (isDelete != 0)
+  {
+    gotoxy(40, 23);
+    printf("ID YANG ANDA MASUKKAN SALAH!!");
+  }
+  gotoxy(40, 25);
+  printf("TEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+
+  getch();
+  menu();
+}
+
+void cariMobil()
+{
+  int isID, isMerk, isModel, isJenis, isWarna, isHarga, isTahun;
+  char inputan[100];
+  char tahun[100];
+  char harga[100];
+
+  gotoxy(16, 3);
+  printf("====================================================================="
+         "============");
+  gotoxy(16, 4);
+  printf("|                                 CARI DATA MOBIL                    "
+         "           |");
+  gotoxy(16, 5);
+  printf("====================================================================="
+         "============");
+  struct Mobil *mobil = head;
+  gotoxy(16, 7);
+  printf("Masukkan data mobil yang ingin dicari : ");
+  gotoxy(58, 7);
+  scanf("%s", inputan);
+
+  if (mobil == NULL)
+  {
+    printf("\n\t\t\tData kosong!\n");
+  }
+
+  while (mobil != NULL)
+  {
+    isID = strcmp(mobil->id, inputan);
+    isMerk = strcmp(mobil->merk, inputan);
+    isModel = strcmp(mobil->model, inputan);
+    isJenis = strcmp(mobil->jenis, inputan);
+    isWarna = strcmp(mobil->warna, inputan);
+    isHarga = strcmp(harga, inputan);
+    isTahun = strcmp(tahun, inputan);
+    if (isID == 0)
+    {
+      tampilSearch(mobil);
+      return;
+    }
+    else if (isMerk == 0)
+    {
+      tampilSearch(mobil);
+      return;
+    }
+    else if (isModel == 0)
+    {
+      tampilSearch(mobil);
+      return;
+    }
+    else if (isJenis == 0)
+    {
+      tampilSearch(mobil);
+      return;
+    }
+    else if (isWarna == 0)
+    {
+      tampilSearch(mobil);
+      return;
+    }
+    else if (isHarga == 0)
+    {
+      tampilSearch(mobil);
+      return;
+    }
+    else if (isTahun == 0)
+    {
+      printf("%s\n", mobil->merk);
+      printf("%s\n", mobil->model);
+      printf("%s\n", mobil->warna);
+      return;
+    }
+    mobil = mobil->next;
+  }
+  gotoxy(16, 11);
+  printf("Data tidak ditemukan");
+  gotoxy(45, 15);
+  printf("TEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+}
+
+void tampilSearch(struct Mobil *mobil)
+{
+  printf("\n\t\t--------------------------------------------------------------"
+         "-------"
+         "-----------\n");
+  printf("\t\t| %10s | %10s | %10s | %10s | %10s | %10s  |", "Merk", "Model",
+         "Jenis", "Warna", "Tahun", "Harga");
+  printf("\n\t\t|-------------------------------------------------------------"
+         "-------"
+         "----------|");
+
+  printf("\n\t\t| %10s | %10s | %10s | %10s | %10d | %10ld  |", mobil->merk,
+         mobil->model, mobil->jenis, mobil->warna, mobil->tahun, mobil->harga);
+  printf("\n\t\t--------------------------------------------------------------"
+         "-------"
+         "-----------\n");
+
+  printf("\n\n\n\t\t\t\t   TEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+}
+
+void riwayatMobil()
+{
+  struct Riwayat *riwayat = headRwy;
+
+  gotoxy(17, 3);
+  printf("====================================================================="
+         "=============");
+  gotoxy(17, 4);
+  printf("|                                 RIWAYAT AKTIVITAS                  "
+         "            |");
+  gotoxy(17, 5);
+  printf("====================================================================="
+         "=============\n");
+
+  while (riwayat != NULL)
+  {
+    printf("\t\t\t%s", riwayat->keterangan);
+    riwayat = riwayat->next;
+  }
+  printf("\n\n\n\t\t\tTEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+}
+
+void recordRiwayat(char ket_in[100])
+{
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+  char ket_full[100];
+
+  struct Riwayat *riwayat = (struct Riwayat *)malloc(sizeof(struct Riwayat));
+
+  sprintf(ket_full,
+          "%s (%d-%02d-%02d "
+          "%02d:%02d:%02d)\n",
+          ket_in, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
+          tm.tm_min, tm.tm_sec);
+
+  strcpy(riwayat->keterangan, ket_full);
+
+  riwayat->next = NULL;
+
+  if (headRwy == NULL)
+  {
+    headRwy = riwayat;
+  }
+  else
+  {
+    riwayat->next = headRwy;
+    headRwy = riwayat;
+  }
+}
+
+void urutkanMobil()
+{
+  int inputan;
+
+  gotoxy(17, 3);
+  printf("====================================================================="
+         "=============");
+  gotoxy(17, 4);
+  printf("|                                 URUTKAN DATA MOBIL                 "
+         "             |");
+  gotoxy(17, 5);
+  printf("====================================================================="
+         "=============");
+
+  gotoxy(45, 8);
+  printf("Urutkan data berdasarkan : \n");
+  gotoxy(40, 10);
+  printf("1. Mobil Termahal\n");
+  gotoxy(40, 11);
+  printf("2. Mobil Termurah\n");
+  gotoxy(40, 12);
+  printf("3. Mobil Terbaru\n");
+  gotoxy(40, 13);
+  printf("4. Mobil Terlama\n");
+  gotoxy(40, 15);
+  printf("Masukkan pilihan Anda : ");
+  scanf("%d", &inputan);
+
+  switch (inputan)
+  {
+  case 1:
+    system("cls");
+    mobilTermahal();
+    tampilMobil();
+    break;
+  case 2:
+    system("cls");
+    mobilTermurah();
+    tampilMobil();
+    break;
+  case 3:
+    system("cls");
+    mobilTerbaru();
+    tampilMobil();
+    break;
+  case 4:
+    system("cls");
+    mobilTerlama();
+    tampilMobil();
+    break;
+  default:
+    printf("\n\n\t\t  Terjadi Kesalahan Input, Menu Yang Di Input Tidak Tersedia\n");
+    printf("\t\t  Tekan apa saja untuk kembali ke menu utama\n");
+    break;
+  }
+  getch();
+  menu();
+}
+
+void mobilTermahal()
+{
+  struct Mobil *current = head, *index = NULL;
+
+  if (head == NULL)
+  {
+    return;
+  }
+  else
+  {
+    while (current != NULL)
+    {
+      index = current->next;
+      while (index != NULL)
+      {
+        if (current->harga < index->harga)
+        {
+          swap(current, index);
+        }
+        index = index->next;
+      }
+      current = current->next;
+    }
+  }
+}
+
+void mobilTermurah()
+{
+  struct Mobil *current = head, *index = NULL;
+
+  if (head == NULL)
+  {
+    return;
+  }
+  else
+  {
+    while (current != NULL)
+    {
+      index = current->next;
+      while (index != NULL)
+      {
+        if (current->harga > index->harga)
+        {
+          swap(current, index);
+        }
+        index = index->next;
+      }
+      current = current->next;
+    }
+  }
+}
+
+void mobilTerbaru()
+{
+  struct Mobil *current = head, *index = NULL;
+  int temp;
+  char *end;
+
+  if (head == NULL)
+  {
+    return;
+  }
+  else
+  {
+    while (current != NULL)
+    {
+      index = current->next;
+      while (index != NULL)
+      {
+        if (current->tahun < index->tahun)
+        {
+          swap(current, index);
+        }
+        index = index->next;
+      }
+      current = current->next;
+    }
+  }
+}
+
+void mobilTerlama()
+{
+  struct Mobil *current = head, *index = NULL;
+  int temp;
+  char *end;
+
+  if (head == NULL)
+  {
+    return;
+  }
+  else
+  {
+    while (current != NULL)
+    {
+      index = current->next;
+      while (index != NULL)
+      {
+        if (current->tahun > index->tahun)
+        {
+          swap(current, index);
+        }
+        index = index->next;
+      }
+      current = current->next;
+    }
+  }
+}
+
+void resetMobil()
+{
+  loading("MERESET DATA..");
+  head = NULL;
+  system("cls");
+  gotoxy(50, 12);
+  printf("DATA BERHASIL DIRESET!");
+  gotoxy(40, 13);
+  printf("TEKAN ENTER UNTUK KEMBALI KE MENU AWAL!!");
+}
+
+void Keluar()
+{
+  system("cls");
+  char enter;
+  int x;
+  double y;
+
+  char text1[] =
+      "\n\n \t\t\t\t      ::::::::::::::::::::::::::::::::::::::::::::::";
+  char text2[] =
+      "\n \t\t\t\t      ::                                          ::";
+  char text3[] =
+      "\n \t\t\t\t      ::       TR Asisten Dosen ASD Kelas G       ::";
+  char text4[] =
+      "\n \t\t\t\t      ::                                          ::";
+  char text5[] =
+      "\n \t\t\t\t      ::::::::::::::::::::::::::::::::::::::::::::::";
+  char text6[] =
+      "\n \t\t\t\t      ::                                          ::";
+  char text7[] =
+      "\n \t\t\t\t      ::    Lanyta Setyani Gunawan (672021047)    ::";
+  char text8[] =
+      "\n \t\t\t\t      ::    Yosafat Rendi Prayoga  (672021055)    ::";
+  char text9[] =
+      "\n \t\t\t\t      ::    Fajar Legianto Asmin   (672021088)    ::";
+  char text10[] =
+      "\n \t\t\t\t      ::                                          ::";
+  char text11[] =
+      "\n \t\t\t\t      ::::::::::::::::::::::::::::::::::::::::::::::";
+  printf("\n");
+  for (x = 0; text1[x] != NULL; x++)
+  {
+    // mencetak per huruf
+    printf("%c", text1[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text2[x] != NULL; x++)
+  {
+    printf("%c", text2[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text3[x] != NULL; x++)
+  {
+    printf("%c", text3[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text4[x] != NULL; x++)
+  {
+    printf("%c", text4[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text5[x] != NULL; x++)
+  {
+    printf("%c", text5[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+
+  for (x = 0; text6[x] != NULL; x++)
+  {
+    printf("%c", text6[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+
+  for (x = 0; text7[x] != NULL; x++)
+  {
+    printf("%c", text7[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+
+  for (x = 0; text8[x] != NULL; x++)
+  {
+    printf("%c", text8[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text9[x] != NULL; x++)
+  {
+    printf("%c", text9[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text10[x] != NULL; x++)
+  {
+    printf("%c", text10[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+  for (x = 0; text11[x] != NULL; x++)
+  {
+    printf("%c", text11[x]);
+    for (y = 0; y <= 8888888; y++)
+    {
+    }
+  }
+
+  gotoxy(45, 15);
+  printf("TEKAN ENTER UNTUK KELUAR");
+  getch();
+  system("taskkill/IM cb_console_runner.exe");
+}
+
+void swap(struct Mobil *current, struct Mobil *index)
+{
+  int temp_int;
+  char temp_char[100];
+
+  temp_int = current->harga;
+  current->harga = index->harga;
+  index->harga = temp_int;
+
+  temp_int = current->tahun;
+  current->tahun = index->tahun;
+  index->tahun = temp_int;
+
+  strcpy(temp_char, current->merk);
+  strcpy(current->merk, index->merk);
+  strcpy(index->merk, temp_char);
+
+  strcpy(temp_char, current->jenis);
+  strcpy(current->jenis, index->jenis);
+  strcpy(index->jenis, temp_char);
+
+  strcpy(temp_char, current->model);
+  strcpy(current->model, index->model);
+  strcpy(index->model, temp_char);
+
+  strcpy(temp_char, current->warna);
+  strcpy(current->warna, index->warna);
+  strcpy(index->warna, temp_char);
+}
+
+int random_int() { return 100 + rand() % (999 + 1 - 100); }
+
+void Enter()
+{
+  char enter;
+
+  printf("\n\nTEKAN ENTER UNTUK KEMBALI");
+  while ((enter = getchar()) != '\n')
+    ;
+  enter = getchar();
+}
+
+void auto_insert(char merk[100], char model[100], char jenis[100],
+                 char warna[100], int tahun, long harga)
+{
+
+  char id[10];
+  int random = random_int();
+  char firstMerk[3];
+
+  struct Mobil *mobil = (struct Mobil *)malloc(sizeof(struct Mobil));
+
+  strcpy(mobil->merk, merk);
+  strcpy(mobil->model, model);
+  strcpy(mobil->jenis, jenis);
+  strcpy(mobil->warna, warna);
+  mobil->tahun = tahun;
+  mobil->harga = harga;
+  memcpy(firstMerk, merk, 2);
+  sprintf(id, "%s%d", firstMerk, random);
+  strcpy(mobil->id, id);
+
+  mobil->next = NULL;
+
+  if (head == NULL)
+  {
+    head = mobil;
+  }
+  else
+  {
+    mobil->next = head;
+    head = mobil;
+  }
+}
